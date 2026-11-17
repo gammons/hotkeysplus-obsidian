@@ -25,13 +25,9 @@ function selection(
   };
 }
 
-test('a plain line cycles bullet, open checkbox, checked checkbox, then bullet', () => {
+test('a plain line cycles open checkbox, checked checkbox, bullet, then open checkbox', () => {
   let lines = ['foo'];
   let selections = [caret(0, 1)];
-
-  ({ lines, selections } = toggleLines(lines, selections, 'todo'));
-  assert.deepEqual(lines, ['- foo']);
-  assert.deepEqual(selections, [caret(0, 3)]);
 
   ({ lines, selections } = toggleLines(lines, selections, 'todo'));
   assert.deepEqual(lines, ['- [ ] foo']);
@@ -44,27 +40,31 @@ test('a plain line cycles bullet, open checkbox, checked checkbox, then bullet',
   ({ lines, selections } = toggleLines(lines, selections, 'todo'));
   assert.deepEqual(lines, ['- foo']);
   assert.deepEqual(selections, [caret(0, 3)]);
+
+  ({ lines, selections } = toggleLines(lines, selections, 'todo'));
+  assert.deepEqual(lines, ['- [ ] foo']);
+  assert.deepEqual(selections, [caret(0, 7)]);
 });
 
 test('the caret on a plain or empty line lands after the inserted marker', () => {
   assert.deepEqual(toggleLines(['foo'], [caret(0, 0)], 'todo'), {
-    lines: ['- foo'],
-    selections: [caret(0, 2)],
+    lines: ['- [ ] foo'],
+    selections: [caret(0, 6)],
   });
   assert.deepEqual(toggleLines([''], [caret(0, 0)], 'todo'), {
-    lines: ['- '],
-    selections: [caret(0, 2)],
+    lines: ['- [ ] '],
+    selections: [caret(0, 6)],
   });
 });
 
 test('indentation is kept and the caret stays on the same character', () => {
   assert.deepEqual(toggleLines(['    foo'], [caret(0, 6)], 'todo'), {
-    lines: ['    - foo'],
-    selections: [caret(0, 8)],
+    lines: ['    - [ ] foo'],
+    selections: [caret(0, 12)],
   });
   assert.deepEqual(toggleLines(['\tfoo'], [caret(0, 0)], 'todo'), {
-    lines: ['\t- foo'],
-    selections: [caret(0, 3)],
+    lines: ['\t- [ ] foo'],
+    selections: [caret(0, 7)],
   });
   assert.deepEqual(toggleLines(['  - [ ] buy milk'], [caret(0, 12)], 'todo'), {
     lines: ['  - [x] buy milk'],
@@ -81,8 +81,8 @@ test('a caret sitting on the marker moves to just after the new marker', () => {
 
 test('dashes inside the sentence are not treated as list markers', () => {
   assert.deepEqual(toggleLines(['buy milk - 2 liters'], [caret(0, 4)], 'todo'), {
-    lines: ['- buy milk - 2 liters'],
-    selections: [caret(0, 6)],
+    lines: ['- [ ] buy milk - 2 liters'],
+    selections: [caret(0, 10)],
   });
   assert.deepEqual(toggleLines(['- hello - world'], [caret(0, 9)], 'todo'), {
     lines: ['- [ ] hello - world'],
@@ -119,8 +119,8 @@ test('a multi-line selection cycles every touched line and keeps each endpoint i
     [selection(0, 2, 2, 1)],
     'todo',
   );
-  assert.deepEqual(result.lines, ['- alpha', '  - beta', '- gamma']);
-  assert.deepEqual(result.selections, [selection(0, 4, 2, 3)]);
+  assert.deepEqual(result.lines, ['- [ ] alpha', '  - [ ] beta', '- [ ] gamma']);
+  assert.deepEqual(result.selections, [selection(0, 8, 2, 7)]);
 });
 
 test('a selection that only ends at the next line does not toggle that line', () => {
@@ -129,14 +129,14 @@ test('a selection that only ends at the next line does not toggle that line', ()
     [selection(0, 1, 1, 0)],
     'todo',
   );
-  assert.deepEqual(result.lines, ['- alpha', 'beta']);
-  assert.deepEqual(result.selections, [selection(0, 3, 1, 0)]);
+  assert.deepEqual(result.lines, ['- [ ] alpha', 'beta']);
+  assert.deepEqual(result.selections, [selection(0, 7, 1, 0)]);
 });
 
 test('a collapsed caret at column 0 still toggles its own line', () => {
   assert.deepEqual(toggleLines(['alpha', 'beta'], [caret(1, 0)], 'todo'), {
-    lines: ['alpha', '- beta'],
-    selections: [caret(1, 2)],
+    lines: ['alpha', '- [ ] beta'],
+    selections: [caret(1, 6)],
   });
 });
 
@@ -146,20 +146,20 @@ test('multiple carets cycle their own lines and a reversed selection keeps its d
     [caret(0, 2), caret(2, 1)],
     'todo',
   );
-  assert.deepEqual(carets.lines, ['- one', 'two', '- three']);
-  assert.deepEqual(carets.selections, [caret(0, 4), caret(2, 3)]);
+  assert.deepEqual(carets.lines, ['- [ ] one', 'two', '- [ ] three']);
+  assert.deepEqual(carets.selections, [caret(0, 8), caret(2, 7)]);
 
   const reversed = toggleLines(['alpha', 'beta'], [selection(1, 2, 0, 1)], 'todo');
-  assert.deepEqual(reversed.lines, ['- alpha', '- beta']);
-  assert.deepEqual(reversed.selections, [selection(1, 4, 0, 3)]);
+  assert.deepEqual(reversed.lines, ['- [ ] alpha', '- [ ] beta']);
+  assert.deepEqual(reversed.selections, [selection(1, 8, 0, 7)]);
 });
 
-test('blank lines inside a selection become empty list items', () => {
+test('blank lines inside a selection become empty checkboxes', () => {
   assert.deepEqual(
     toggleLines(['foo', '', 'bar'], [selection(0, 0, 2, 1)], 'todo'),
     {
-      lines: ['- foo', '- ', '- bar'],
-      selections: [selection(0, 2, 2, 3)],
+      lines: ['- [ ] foo', '- [ ] ', '- [ ] bar'],
+      selections: [selection(0, 6, 2, 7)],
     },
   );
 });
@@ -301,8 +301,8 @@ test('an empty list item advances to an empty checkbox with the caret after the 
 test('applying a to-do toggle writes the new line and caret through the editor', () => {
   const editor = fakeEditor(['foo'], [caret(0, 1)]);
   applyToggle(editor, 'todo');
-  assert.deepEqual(editor.lines, ['- foo']);
-  assert.deepEqual(editor.selections, [caret(0, 3)]);
+  assert.deepEqual(editor.lines, ['- [ ] foo']);
+  assert.deepEqual(editor.selections, [caret(0, 7)]);
 });
 
 function fakeEditor(lines: string[], selections: TextSelection[]): EditorSurface & {
@@ -344,10 +344,10 @@ test('editor updates replace only the lines that changed', () => {
     {
       from: { line: 1, ch: 0 },
       to: { line: 1, ch: 3 },
-      text: '- foo',
+      text: '- [ ] foo',
     },
   ]);
-  assert.deepEqual(update.selections, [caret(1, 3)]);
+  assert.deepEqual(update.selections, [caret(1, 7)]);
 
   const unchanged = buildEditorUpdate(['no link'], [caret(0, 1)], 'embed');
   assert.deepEqual(unchanged.changes, []);

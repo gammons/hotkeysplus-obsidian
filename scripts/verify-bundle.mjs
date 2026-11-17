@@ -92,7 +92,7 @@ const editor = {
   },
 };
 
-const expected = ['- foo', '- [ ] foo', '- [x] foo', '- foo'];
+const expected = ['- [ ] foo', '- [x] foo', '- foo', '- [ ] foo'];
 for (const line of expected) {
   todo.editorCallback(editor);
   if (state.lines[0] !== line) {
@@ -100,7 +100,7 @@ for (const line of expected) {
     process.exit(1);
   }
 }
-if (state.selections[0]?.head?.ch !== 3) {
+if (state.selections[0]?.head?.ch !== 7) {
   console.error(`Expected the caret to stay in the text, got ch ${state.selections[0]?.head?.ch}`);
   process.exit(1);
 }

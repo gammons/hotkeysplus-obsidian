@@ -12,10 +12,10 @@ Requires Obsidian 1.15.0 or newer.
 
 | Current line | After one press |
 | --- | --- |
-| `foo` | `- foo` |
-| `- foo` | `- [ ] foo` |
+| `foo` | `- [ ] foo` |
 | `- [ ] foo` | `- [x] foo` |
 | `- [x] foo` | `- foo` |
+| `- foo` | `- [ ] foo` |
 
 Indentation stays put. A selection that covers several lines cycles each of those lines. The caret stays on the same character of the text, and it never ends up before the new marker, so an empty line is ready to type.
 
@@ -25,7 +25,7 @@ Indentation stays put. A selection that covers several lines cycles each of thos
 
 | Default hotkey | Action |
 | --- | --- |
-| <kbd>Ctrl</kbd>+<kbd>M</kbd> | Cycle a line through a bullet, an open checkbox, and a checked checkbox |
+| <kbd>Ctrl</kbd>+<kbd>M</kbd> | Cycle a line through an open checkbox, a checked checkbox, and a bullet |
 | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> | Cycle a line through a bullet and a numbered list |
 | <kbd>Ctrl</kbd>+<kbd>&lt;</kbd> | Toggle a block quote |
 | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> | Toggle `!` on internal embeds |

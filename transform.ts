@@ -43,11 +43,11 @@ interface LineResult {
   mapCh: (oldCh: number) => number;
 }
 
-/** plain → `- ` → `- [ ] ` → `- [x] ` → `- ` */
+/** plain → `- [ ] ` → `- [x] ` → `- ` → `- [ ] ` */
 function todoMarker(kind: ListKind): string {
-  if (kind === 'bullet') return '- [ ] ';
   if (kind === 'todo') return '- [x] ';
-  return '- ';
+  if (kind === 'done' || kind === 'ordered') return '- ';
+  return '- [ ] ';
 }
 
 function indentOf(line: string): string {
